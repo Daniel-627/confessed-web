@@ -24,9 +24,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          width: 420px;
-          flex-shrink: 0;
-          padding: 52px;
+          flex: 1;
+          padding: 64px 72px;
           background: #081422;
           border-right: 1px solid rgba(201,169,74,0.15);
           position: relative;
@@ -121,13 +120,13 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 48px 32px;
+          padding: 64px 72px;
           background: #0b1929;
         }
 
         .auth-form-wrap {
           width: 100%;
-          max-width: 400px;
+          max-width: 440px;
         }
 
         .auth-heading {
@@ -152,20 +151,35 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         .cl-signIn-root,
         .cl-signUp-root { width: 100% !important; }
 
-        .cl-card {
+        .cl-card,
+        .cl-card:hover,
+        .cl-card:focus-within {
           background: transparent !important;
           box-shadow: none !important;
           border: none !important;
+          outline: none !important;
           padding: 0 !important;
           margin: 0 !important;
           width: 100% !important;
         }
 
+        /* Remove any inner card sections with borders */
+        .cl-cardBox,
+        .cl-card__body,
+        .cl-card__main {
+          background: transparent !important;
+          box-shadow: none !important;
+          border: none !important;
+          padding: 0 !important;
+        }
+
         .cl-headerTitle,
         .cl-headerSubtitle { display: none !important; }
 
+        /* Dark inputs — including autofill override */
         .cl-formFieldInput {
           background: #081422 !important;
+          background-color: #081422 !important;
           border: 1px solid rgba(255,255,255,0.12) !important;
           border-radius: 8px !important;
           color: #f0ece0 !important;
@@ -179,6 +193,17 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           border-color: rgba(201,169,74,0.55) !important;
           outline: none !important;
           box-shadow: 0 0 0 3px rgba(201,169,74,0.08) !important;
+        }
+
+        /* Fix browser autofill white flash */
+        .cl-formFieldInput:-webkit-autofill,
+        .cl-formFieldInput:-webkit-autofill:hover,
+        .cl-formFieldInput:-webkit-autofill:focus,
+        .cl-formFieldInput:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0px 1000px #081422 inset !important;
+          -webkit-text-fill-color: #f0ece0 !important;
+          caret-color: #f0ece0 !important;
+          border: 1px solid rgba(255,255,255,0.12) !important;
         }
 
         .cl-formFieldLabel {
@@ -227,13 +252,38 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           font-size: 11px !important;
         }
 
+        /* Footer — hide Clerk branding, keep sign up/in link */
+        .cl-footer {
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
+
+        /* Hide "Secured by Clerk" and "Development mode" */
+        .cl-footerPages,
+        .cl-footerPagesLink,
+        .cl-internal-b3fm6y,
+        .cl-badge,
+        [data-localization-key="developmentMode"],
+        .cl-footer__bottom { display: none !important; }
+
+        .cl-footerAction {
+          background: transparent !important;
+          border-top: 1px solid rgba(255,255,255,0.06) !important;
+          padding-top: 16px !important;
+          margin-top: 8px !important;
+          justify-content: center !important;
+        }
+
         .cl-footerActionText {
           color: rgba(240,236,224,0.35) !important;
+          font-family: 'Barlow', sans-serif !important;
         }
 
         .cl-footerActionLink {
           color: #C9A94A !important;
           font-weight: 600 !important;
+          font-family: 'Barlow', sans-serif !important;
         }
 
         .cl-footerActionLink:hover { color: #e0bf6a !important; }
@@ -245,20 +295,19 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           color: rgba(240,236,224,0.35) !important;
         }
 
+        /* OTP code inputs */
         .cl-otpCodeFieldInput {
           background: #081422 !important;
+          background-color: #081422 !important;
           border: 1px solid rgba(255,255,255,0.12) !important;
           color: #f0ece0 !important;
           border-radius: 8px !important;
         }
 
-        .cl-badge,
-        .cl-internal-b3fm6y,
-        [data-localization-key="developmentMode"] { display: none !important; }
-
         /* RESPONSIVE */
         @media (max-width: 900px) {
-          .auth-left { width: 340px; padding: 40px 36px; }
+          .auth-left { padding: 48px 40px; }
+          .auth-right { padding: 48px 40px; }
           .auth-verse { font-size: 18px; }
         }
 
@@ -276,7 +325,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           .auth-left::before { display: none; }
           .auth-quote-block { display: none; }
           .auth-tags { display: none; }
-          .auth-right { padding: 32px 20px; justify-content: flex-start; }
+          .auth-right { padding: 32px 24px; justify-content: flex-start; }
         }
 
         @media (max-width: 420px) {
