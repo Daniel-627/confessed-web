@@ -1,16 +1,11 @@
-// middleware.ts  (at project root, next to app/)
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-const isPublicRoute = createRouteMatcher([
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/contributors/(.*)', 
-  '/auth-test',  // public contributor profiles
-  '/',
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
 ])
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
+  if (isProtectedRoute(req)) {
     await auth.protect()
   }
 })
