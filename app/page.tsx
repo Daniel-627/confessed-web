@@ -1,6 +1,5 @@
-// app/page.tsx
 'use client'
-import { useUser, SignInButton, SignOutButton } from '@clerk/nextjs'
+import { useUser, SignOutButton } from '@clerk/nextjs'
 import { useApi } from '@/lib/api'
 import { useEffect, useState } from 'react'
 
@@ -13,19 +12,19 @@ export default function Home() {
     if (user) request('/me').then(setMe).catch(console.error)
   }, [user])
 
-  if (!isLoaded) return <p>Loading...</p>
+  if (!isLoaded) return <p style={{color:'white', padding:'2rem'}}>Loading...</p>
 
   return (
-    <main className="p-8 space-y-4">
+    <main style={{padding:'2rem'}}>
       {!user ? (
-        <SignInButton mode="modal"><button>Sign in</button></SignInButton>
+        <a href="/sign-in" style={{color:'#C9A94A'}}>Sign in</a>
       ) : (
         <>
-          <p>Signed in as {user.primaryEmailAddress?.emailAddress}</p>
-          <pre className="text-xs bg-gray-100 p-4 rounded">
+          <p style={{color:'white'}}>Signed in as {user.primaryEmailAddress?.emailAddress}</p>
+          <pre style={{color:'white', fontSize:'12px', marginTop:'1rem'}}>
             {JSON.stringify(me, null, 2)}
           </pre>
-          <SignOutButton><button>Sign out</button></SignOutButton>
+          <SignOutButton><button style={{color:'#C9A94A', marginTop:'1rem'}}>Sign out</button></SignOutButton>
         </>
       )}
     </main>
