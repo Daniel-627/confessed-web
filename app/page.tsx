@@ -323,16 +323,7 @@ export default function HomePage() {
       `}</style>
 
       <div className="home">
-        <nav className="nav">
-          <a href="/" className="nav-logo">
-            <span className="nav-cross">✝</span>
-            <span className="nav-wordmark">CONFESSED</span>
-          </a>
-          <div className="nav-actions">
-            <a href="/sign-in" className="btn-ghost">Sign in</a>
-            <a href="/sign-up" className="btn-gold">Get started</a>
-          </div>
-        </nav>
+        
 
         <section className="hero">
           <div className="hero-eyebrow">
