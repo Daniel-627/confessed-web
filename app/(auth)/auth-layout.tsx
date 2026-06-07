@@ -1,5 +1,6 @@
 // app/(auth)/auth-layout.tsx
 import type { ReactNode } from 'react'
+import Link from 'next/link'
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -336,10 +337,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
       <div className="auth-root">
         <div className="auth-left">
-          <div className="auth-logo">
-            <span className="auth-cross">✝</span>
-            <span className="auth-wordmark">CONFESSED</span>
-          </div>
+          <Link href="/" className="auth-logo" style={{ textDecoration: 'none' }}>
+  <span className="auth-cross">✝</span>
+  <span className="auth-wordmark">CONFESSED</span>
+</Link>
           <div className="auth-quote-block">
             <p className="auth-verse">
               "For I am not ashamed of the gospel, for it is the power of God

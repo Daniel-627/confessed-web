@@ -2,6 +2,8 @@
 import { SignIn } from '@clerk/nextjs'
 import AuthLayout from '@/app/(auth)/auth-layout'
 
+export const metadata = { title: 'Sign In' }
+
 export default function SignInPage() {
   return (
     <AuthLayout>

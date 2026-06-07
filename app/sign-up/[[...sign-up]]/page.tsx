@@ -2,6 +2,8 @@
 import { SignUp } from '@clerk/nextjs'
 import AuthLayout from '@/app/(auth)/auth-layout'
 
+export const metadata = { title: 'Sign Up' }
+
 export default function SignUpPage() {
   return (
     <AuthLayout>
