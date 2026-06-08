@@ -5,7 +5,7 @@ import { useApi } from '@/lib/api'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-export const metadata = { title: 'My Home' }
+
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser()
