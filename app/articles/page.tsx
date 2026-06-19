@@ -156,10 +156,6 @@ export default function ArticlesPage() {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 1px;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.05);
-          border-radius: 12px;
-          overflow: hidden;
         }
 
         .al-card {
@@ -169,9 +165,11 @@ export default function ArticlesPage() {
           flex-direction: column;
           gap: 14px;
           text-decoration: none;
-          transition: background .2s;
+          border: 1px solid rgba(255,255,255,0.05);
+          border-radius: 8px;
+          transition: background .2s, border-color .2s;
         }
-        .al-card:hover { background: #0b1929; }
+        .al-card:hover { background: #0b1929; border-color: rgba(201,169,74,0.15); }
 
         .al-card-series {
           font-size: 9px;
