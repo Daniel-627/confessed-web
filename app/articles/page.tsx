@@ -1,7 +1,7 @@
 // app/articles/page.tsx
-// Server component — fetches series + articles directly, no client JS needed.
-// Series filter works via URL search params (?series=slug).
-
+'use client'
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.confessed.faith'
@@ -10,8 +10,6 @@ interface Series {
   id: string
   name: string
   slug: string
-  description: string | null
-  verseReference: string | null
 }
 
 interface Article {
@@ -19,35 +17,11 @@ interface Article {
   title: string
   slug: string
   excerpt: string | null
+  tags: string[]
   readingTimeMinutes: number | null
   publishedAt: string | null
   authorId: string
   series: { id: string; name: string; slug: string } | null
-}
-
-async function getSeries(): Promise<Series[]> {
-  try {
-    const res = await fetch(`${API}/series`, { next: { revalidate: 3600 } })
-    if (!res.ok) return []
-    const data = await res.json()
-    return data.series ?? []
-  } catch {
-    return []
-  }
-}
-
-async function getArticles(seriesSlug?: string): Promise<Article[]> {
-  try {
-    const url = seriesSlug
-      ? `${API}/articles?series=${encodeURIComponent(seriesSlug)}`
-      : `${API}/articles`
-    const res = await fetch(url, { next: { revalidate: 60 } })
-    if (!res.ok) return []
-    const data = await res.json()
-    return data.articles ?? []
-  } catch {
-    return []
-  }
 }
 
 function formatDate(iso: string | null) {
@@ -57,60 +31,66 @@ function formatDate(iso: string | null) {
   })
 }
 
-type Props = {
-  searchParams: Promise<{ series?: string }>
-}
+export default function ArticlesPage() {
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const activeSeries = searchParams.get('series') ?? 'all'
 
-export default async function ArticlesPage({ searchParams }: Props) {
-  const { series: seriesSlug } = await searchParams
-  const [seriesList, articles] = await Promise.all([
-    getSeries(),
-    getArticles(seriesSlug),
-  ])
+  const [seriesList, setSeriesList] = useState<Series[]>([])
+  const [articles,   setArticles]   = useState<Article[]>([])
+  const [loading,    setLoading]    = useState(true)
 
-  const activeSeries = seriesList.find(s => s.slug === seriesSlug) ?? null
+  // Load series once
+  useEffect(() => {
+    fetch(`${API}/series`)
+      .then(r => r.json())
+      .then(d => setSeriesList(d.series ?? []))
+      .catch(() => {})
+  }, [])
+
+  // Load articles whenever series filter changes
+  useEffect(() => {
+    setLoading(true)
+    const url = activeSeries === 'all'
+      ? `${API}/articles`
+      : `${API}/articles?series=${activeSeries}`
+
+    fetch(url)
+      .then(r => r.json())
+      .then(d => setArticles(d.articles ?? []))
+      .catch(() => setArticles([]))
+      .finally(() => setLoading(false))
+  }, [activeSeries])
+
+  function setFilter(slug: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (slug === 'all') params.delete('series')
+    else params.set('series', slug)
+    router.replace(`/articles?${params.toString()}`, { scroll: false })
+  }
 
   return (
     <>
       <style>{`
-        .al-page {
+        .al-wrap {
           min-height: 100vh;
           background: #080f1a;
-          color: #f0ece0;
           font-family: var(--font-barlow), sans-serif;
+          color: #f0ece0;
         }
 
-        /* ── Hero ── */
-        .al-hero {
-          padding: 72px 64px 56px;
+        /* Page header */
+        .al-header {
+          padding: 64px 64px 0;
           border-bottom: 1px solid rgba(255,255,255,0.05);
-          position: relative;
         }
-
-        .al-hero::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background-image:
-            linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
-          background-size: 60px 60px;
-          pointer-events: none;
-        }
-
         .al-eyebrow {
           display: flex;
           align-items: center;
           gap: 10px;
           margin-bottom: 20px;
         }
-
-        .al-eyebrow-line {
-          width: 28px;
-          height: 1px;
-          background: #C9A94A;
-        }
-
+        .al-eyebrow-line { width: 28px; height: 1px; background: #C9A94A; }
         .al-eyebrow-text {
           font-size: 10px;
           font-weight: 700;
@@ -118,343 +98,222 @@ export default async function ArticlesPage({ searchParams }: Props) {
           color: #C9A94A;
           text-transform: uppercase;
         }
-
-        .al-hero-title {
+        .al-title {
           font-family: var(--font-garamond), serif;
-          font-size: clamp(40px, 6vw, 72px);
+          font-size: clamp(36px, 6vw, 64px);
           font-weight: 400;
           color: #f0ece0;
-          line-height: 1.05;
-          margin-bottom: 16px;
-          position: relative;
+          line-height: 1.1;
+          margin-bottom: 8px;
         }
-
-        .al-hero-title em {
-          font-style: italic;
-          color: #C9A94A;
-        }
-
-        .al-hero-desc {
+        .al-title em { font-style: italic; color: #C9A94A; }
+        .al-subtitle {
           font-family: var(--font-garamond), serif;
-          font-size: 18px;
+          font-size: 17px;
           font-style: italic;
-          color: rgba(240,236,224,0.4);
-          max-width: 520px;
-          line-height: 1.7;
-          position: relative;
+          color: rgba(240,236,224,0.35);
+          margin-bottom: 40px;
         }
 
-        /* Active series banner */
-        .al-series-banner {
-          margin-top: 24px;
-          padding: 16px 20px;
-          background: rgba(201,169,74,0.06);
-          border: 1px solid rgba(201,169,74,0.15);
-          border-radius: 8px;
-          max-width: 600px;
-          position: relative;
-        }
-
-        .al-series-banner-name {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          color: #C9A94A;
-          margin-bottom: 4px;
-        }
-
-        .al-series-banner-desc {
-          font-family: var(--font-garamond), serif;
-          font-size: 15px;
-          font-style: italic;
-          color: rgba(240,236,224,0.45);
-          line-height: 1.6;
-        }
-
-        .al-series-banner-verse {
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: .1em;
-          color: rgba(201,169,74,0.5);
-          text-transform: uppercase;
-          margin-top: 8px;
-        }
-
-        /* ── Series filter ── */
-        .al-filter {
-          padding: 0 64px;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+        /* Series filter tabs */
+        .al-tabs {
           display: flex;
-          align-items: center;
-          gap: 4px;
+          gap: 0;
           overflow-x: auto;
           scrollbar-width: none;
+          -ms-overflow-style: none;
+          margin: 0 -64px;
+          padding: 0 64px;
         }
+        .al-tabs::-webkit-scrollbar { display: none; }
 
-        .al-filter::-webkit-scrollbar { display: none; }
-
-        .al-filter-pill {
+        .al-tab {
           flex-shrink: 0;
-          padding: 14px 16px;
+          padding: 12px 0;
+          margin-right: 32px;
           font-size: 12px;
-          font-weight: 500;
-          letter-spacing: .04em;
-          color: rgba(240,236,224,0.4);
-          text-decoration: none;
+          font-weight: 600;
+          letter-spacing: .06em;
+          color: rgba(240,236,224,0.35);
+          background: none;
+          border: none;
           border-bottom: 2px solid transparent;
+          cursor: pointer;
+          font-family: var(--font-barlow), sans-serif;
           transition: color .15s, border-color .15s;
           white-space: nowrap;
         }
-
-        .al-filter-pill:hover {
-          color: rgba(240,236,224,0.75);
-        }
-
-        .al-filter-pill.active {
+        .al-tab:hover { color: rgba(240,236,224,0.7); }
+        .al-tab.active {
           color: #f0ece0;
           border-bottom-color: #C9A94A;
         }
 
-        /* ── Article list ── */
-        .al-body {
-          padding: 48px 64px 80px;
-          max-width: 1100px;
-        }
+        /* Article grid */
+        .al-body { padding: 48px 64px 80px; }
 
-        .al-count {
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: .12em;
-          text-transform: uppercase;
-          color: rgba(240,236,224,0.25);
-          margin-bottom: 32px;
-        }
-
-        .al-list {
-          display: flex;
-          flex-direction: column;
+        .al-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
           gap: 1px;
+          background: rgba(255,255,255,0.05);
           border: 1px solid rgba(255,255,255,0.05);
-          border-radius: 10px;
+          border-radius: 12px;
           overflow: hidden;
         }
 
         .al-card {
-          display: grid;
-          grid-template-columns: 1fr auto;
-          gap: 24px;
-          align-items: start;
-          padding: 28px 32px;
-          background: #0b1929;
+          background: #080f1a;
+          padding: 32px 28px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
           text-decoration: none;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
-          transition: background .15s;
+          transition: background .2s;
         }
-
-        .al-card:last-child { border-bottom: none; }
-        .al-card:hover { background: #0d1e34; }
+        .al-card:hover { background: #0b1929; }
 
         .al-card-series {
-          font-size: 10px;
+          font-size: 9px;
           font-weight: 700;
-          letter-spacing: .14em;
+          letter-spacing: .16em;
           text-transform: uppercase;
           color: #C9A94A;
-          margin-bottom: 8px;
         }
 
         .al-card-title {
           font-family: var(--font-garamond), serif;
-          font-size: clamp(18px, 2.5vw, 22px);
-          font-weight: 400;
+          font-size: 21px;
+          line-height: 1.3;
           color: #f0ece0;
-          line-height: 1.35;
-          margin-bottom: 10px;
+          font-weight: 400;
         }
 
         .al-card-excerpt {
           font-family: var(--font-garamond), serif;
           font-size: 15px;
-          font-style: italic;
-          color: rgba(240,236,224,0.4);
           line-height: 1.65;
-          margin-bottom: 16px;
-          max-width: 580px;
+          color: rgba(240,236,224,0.45);
+          font-style: italic;
+          flex: 1;
+          /* Clamp to 3 lines */
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
 
         .al-card-meta {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
+          padding-top: 14px;
+          border-top: 1px solid rgba(255,255,255,0.05);
         }
-
-        .al-card-meta-item {
+        .al-card-date {
           font-size: 11px;
           color: rgba(240,236,224,0.25);
-          letter-spacing: .04em;
         }
-
-        .al-card-meta-dot {
+        .al-card-dot {
           width: 2px;
           height: 2px;
           border-radius: 50%;
-          background: rgba(240,236,224,0.2);
-        }
-
-        .al-card-arrow {
-          font-size: 18px;
-          color: rgba(201,169,74,0.3);
-          align-self: center;
+          background: rgba(240,236,224,0.15);
           flex-shrink: 0;
-          transition: color .15s, transform .15s;
+        }
+        .al-card-rt {
+          font-size: 11px;
+          color: rgba(240,236,224,0.25);
         }
 
-        .al-card:hover .al-card-arrow {
-          color: #C9A94A;
-          transform: translateX(4px);
-        }
-
-        /* Empty state */
-        .al-empty {
-          padding: 64px 32px;
+        /* Empty / loading states */
+        .al-state {
           text-align: center;
-          border: 1px solid rgba(255,255,255,0.05);
-          border-radius: 10px;
-          background: #0b1929;
-        }
-
-        .al-empty-title {
+          padding: 80px 0;
           font-family: var(--font-garamond), serif;
-          font-size: 24px;
+          font-size: 18px;
           font-style: italic;
-          color: rgba(240,236,224,0.3);
-          margin-bottom: 8px;
-        }
-
-        .al-empty-sub {
-          font-size: 13px;
           color: rgba(240,236,224,0.2);
         }
 
-        /* ── Responsive ── */
-        @media (max-width: 900px) {
-          .al-hero  { padding: 48px 32px 40px; }
-          .al-filter { padding: 0 32px; }
-          .al-body  { padding: 36px 32px 64px; }
+        /* Responsive */
+        @media (max-width: 1024px) {
+          .al-header { padding: 48px 40px 0; }
+          .al-tabs { margin: 0 -40px; padding: 0 40px; }
+          .al-body { padding: 40px 40px 64px; }
+          .al-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
-        @media (max-width: 600px) {
-          .al-hero  { padding: 40px 20px 32px; }
-          .al-filter { padding: 0 20px; }
-          .al-body  { padding: 28px 20px 48px; }
-          .al-card  { grid-template-columns: 1fr; padding: 24px 20px; gap: 0; }
-          .al-card-arrow { display: none; }
+        @media (max-width: 640px) {
+          .al-header { padding: 40px 20px 0; }
+          .al-tabs { margin: 0 -20px; padding: 0 20px; }
+          .al-body { padding: 32px 20px 56px; }
+          .al-grid { grid-template-columns: 1fr; }
+          .al-title { font-size: 36px; }
         }
       `}</style>
 
-      <div className="al-page">
-        {/* Hero */}
-        <div className="al-hero">
+      <div className="al-wrap">
+        <div className="al-header">
           <div className="al-eyebrow">
             <span className="al-eyebrow-line" />
-            <span className="al-eyebrow-text">Confessed · Articles</span>
+            <span className="al-eyebrow-text">Reformed · Confessional · Gospel-Centred</span>
             <span className="al-eyebrow-line" />
           </div>
-
-          <h1 className="al-hero-title">
-            {activeSeries ? (
-              <><em>{activeSeries.name}</em></>
-            ) : (
-              <>Written for the <em>truth</em></>
-            )}
+          <h1 className="al-title">
+            Confessional <em>theology,</em><br />written for the church
           </h1>
-
-          {!activeSeries && (
-            <p className="al-hero-desc">
-              Theology, apologetics, and discipleship — written for the saint, the seeker, and the critic.
-            </p>
-          )}
-
-          {activeSeries && (
-            <div className="al-series-banner">
-              <p className="al-series-banner-name">Series</p>
-              <p className="al-series-banner-desc">{activeSeries.description}</p>
-              {activeSeries.verseReference && (
-                <p className="al-series-banner-verse">{activeSeries.verseReference}</p>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Series filter tabs */}
-        <div className="al-filter">
-          <Link
-            href="/articles"
-            className={`al-filter-pill${!seriesSlug ? ' active' : ''}`}
-          >
-            All
-          </Link>
-          {seriesList.map(s => (
-            <Link
-              key={s.id}
-              href={`/articles?series=${s.slug}`}
-              className={`al-filter-pill${seriesSlug === s.slug ? ' active' : ''}`}
-            >
-              {s.name}
-            </Link>
-          ))}
-        </div>
-
-        {/* Article list */}
-        <div className="al-body">
-          <p className="al-count">
-            {articles.length} {articles.length === 1 ? 'article' : 'articles'}
-            {activeSeries ? ` in ${activeSeries.name}` : ''}
+          <p className="al-subtitle">
+            Articles across doctrine, apologetics, history, and the Christian life.
           </p>
 
-          {articles.length === 0 ? (
-            <div className="al-empty">
-              <p className="al-empty-title">No articles yet.</p>
-              <p className="al-empty-sub">
-                {activeSeries
-                  ? `Nothing published in ${activeSeries.name} yet — check back soon.`
-                  : 'No articles published yet — check back soon.'}
-              </p>
-            </div>
+          {/* Series filter tabs */}
+          <div className="al-tabs" role="tablist">
+            <button
+              role="tab"
+              className={`al-tab${activeSeries === 'all' ? ' active' : ''}`}
+              onClick={() => setFilter('all')}
+            >
+              All articles
+            </button>
+            {seriesList.map(s => (
+              <button
+                key={s.id}
+                role="tab"
+                className={`al-tab${activeSeries === s.slug ? ' active' : ''}`}
+                onClick={() => setFilter(s.slug)}
+              >
+                {s.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="al-body">
+          {loading ? (
+            <p className="al-state">Loading…</p>
+          ) : articles.length === 0 ? (
+            <p className="al-state">No articles yet in this series.</p>
           ) : (
-            <div className="al-list">
-              {articles.map((article) => (
-                <Link
-                  key={article.id}
-                  href={`/articles/${article.slug}`}
-                  className="al-card"
-                >
-                  <div>
-                    {article.series && (
-                      <p className="al-card-series">{article.series.name}</p>
+            <div className="al-grid">
+              {articles.map(a => (
+                <Link key={a.id} href={`/articles/${a.slug}`} className="al-card">
+                  {a.series && (
+                    <span className="al-card-series">{a.series.name}</span>
+                  )}
+                  <h2 className="al-card-title">{a.title}</h2>
+                  {a.excerpt && (
+                    <p className="al-card-excerpt">{a.excerpt}</p>
+                  )}
+                  <div className="al-card-meta">
+                    <span className="al-card-date">{formatDate(a.publishedAt)}</span>
+                    {a.readingTimeMinutes && (
+                      <>
+                        <span className="al-card-dot" />
+                        <span className="al-card-rt">{a.readingTimeMinutes} min read</span>
+                      </>
                     )}
-                    <h2 className="al-card-title">{article.title}</h2>
-                    {article.excerpt && (
-                      <p className="al-card-excerpt">{article.excerpt}</p>
-                    )}
-                    <div className="al-card-meta">
-                      {article.readingTimeMinutes && (
-                        <>
-                          <span className="al-card-meta-item">
-                            {article.readingTimeMinutes} min read
-                          </span>
-                          <span className="al-card-meta-dot" />
-                        </>
-                      )}
-                      {article.publishedAt && (
-                        <span className="al-card-meta-item">
-                          {formatDate(article.publishedAt)}
-                        </span>
-                      )}
-                    </div>
                   </div>
-                  <span className="al-card-arrow">→</span>
                 </Link>
               ))}
             </div>

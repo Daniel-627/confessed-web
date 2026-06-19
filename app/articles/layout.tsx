@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Articles',
-  description: 'Reformed Baptist theology, apologetics, and discipleship — written for the saint, the seeker, and the critic.',
+  description: 'Reformed Baptist theology, apologetics, and discipleship — written by confessional contributors.',
 }
 
 export default function ArticlesLayout({ children }: { children: React.ReactNode }) {
