@@ -1,11 +1,8 @@
-// app/dashboard/page.tsx
 'use client'
 import { useUser, SignOutButton } from '@clerk/nextjs'
 import { useApi } from '@/lib/api'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-
-
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser()
@@ -49,91 +46,6 @@ export default function DashboardPage() {
           background-size: 60px 60px;
           pointer-events: none;
           z-index: 0;
-        }
-
-        .dash::after {
-          content: '';
-          position: fixed;
-          top: 0; left: 0; right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, transparent, #C9A94A, transparent);
-          z-index: 10;
-        }
-
-        /* TOPBAR */
-        .topbar {
-          position: relative;
-          z-index: 5;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 20px 48px;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-          background: rgba(8,20,34,0.8);
-          backdrop-filter: blur(12px);
-        }
-
-        .topbar-logo {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .topbar-cross { color: #C9A94A; font-size: 18px; }
-        .topbar-wordmark {
-          font-size: 13px;
-          font-weight: 700;
-          letter-spacing: .2em;
-          color: #f0ece0;
-        }
-
-        .topbar-right {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .role-badge {
-          font-size: 9px;
-          font-weight: 700;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          padding: 4px 10px;
-          border-radius: 100px;
-          border: 1px solid;
-        }
-
-        .role-badge.regular {
-          color: rgba(240,236,224,0.5);
-          border-color: rgba(255,255,255,0.12);
-        }
-
-        .role-badge.contributor {
-          color: #C9A94A;
-          border-color: rgba(201,169,74,0.3);
-        }
-
-        .role-badge.admin {
-          color: #81c784;
-          border-color: rgba(129,199,132,0.3);
-        }
-
-        .sign-out-btn {
-          background: transparent;
-          border: 1px solid rgba(255,255,255,0.1);
-          color: rgba(240,236,224,0.5);
-          padding: 7px 16px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 500;
-          cursor: pointer;
-          font-family: 'Barlow', sans-serif;
-          transition: all .2s;
-        }
-
-        .sign-out-btn:hover {
-          border-color: rgba(255,255,255,0.2);
-          color: rgba(240,236,224,0.8);
         }
 
         /* MAIN */
@@ -263,26 +175,12 @@ export default function DashboardPage() {
         }
 
         @media (max-width: 600px) {
-          .topbar { padding: 16px 20px; }
           .dash-cards { grid-template-columns: 1fr; }
           .dash-main { padding: 60px 20px; }
         }
       `}</style>
 
       <div className="dash">
-        <header className="topbar">
-          <div className="topbar-logo">
-            <span className="topbar-cross">✝</span>
-            <span className="topbar-wordmark">CONFESSED</span>
-          </div>
-          <div className="topbar-right">
-            <span className={`role-badge ${role}`}>{role}</span>
-            <SignOutButton redirectUrl="/">
-              <button className="sign-out-btn">Sign out</button>
-            </SignOutButton>
-          </div>
-        </header>
-
         <main className="dash-main">
           <h1 className="dash-greeting">
             Welcome, <em>{name}</em>
