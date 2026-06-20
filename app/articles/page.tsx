@@ -255,7 +255,7 @@ export default function ArticlesPage() {
         <div className="al-header">
           <div className="al-eyebrow">
             <span className="al-eyebrow-line" />
-            <span className="al-eyebrow-text">Reformed · Confessional · Gospel-Centred</span>
+            <span className="al-eyebrow-text">Reformed · Confessional · Gospel-Centered</span>
             <span className="al-eyebrow-line" />
           </div>
           <h1 className="al-title">
