@@ -3,8 +3,6 @@
 import { usePathname } from 'next/navigation'
 import { SignOutButton } from '@clerk/nextjs'
 import Link from 'next/link'
-import type { UserResource } from '@clerk/types'
-
 const mainLinks = [
   { label: 'Home',         href: '/' },
   { label: 'Articles',     href: '/articles' },
@@ -19,7 +17,7 @@ const mainLinks = [
 type Props = {
   open: boolean
   onClose: () => void
-  user: UserResource | null | undefined
+  user: any
   isLoaded: boolean
 }
 
