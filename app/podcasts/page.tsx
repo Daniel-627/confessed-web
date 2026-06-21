@@ -1,13 +1,13 @@
-// app/videos/page.tsx
+// app/podcasts/page.tsx
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Videos',
-  description: 'Reformed Baptist video content — coming soon to Confessed.',
+  title: 'Podcasts',
+  description: 'Reformed Baptist audio content — coming soon to Confessed.',
 }
 
-export default function VideosPage() {
+export default function PodcastsPage() {
   return (
     <>
       <style>{`
@@ -79,21 +79,14 @@ export default function VideosPage() {
         <div className="cs-inner">
           <span className="cs-cross">✝</span>
           <span className="cs-badge">Coming Soon</span>
-          <h1 className="cs-title">Video is<br /><em>on the way</em></h1>
+          <h1 className="cs-title">Audio is<br /><em>coming</em></h1>
           <p className="cs-body">
-            Long-form theology, apologetics, and discipleship — produced and hosted
-            independently. No platform dependencies. No algorithmic interference.
-            Just the Word, taught faithfully.
+            Theology in your ears — Iron & Ink, The 1689 Project, Articles of Faith,
+            and more. Hosted independently. Available wherever you listen.
+            Subscribe to the newsletter to know when we launch.
           </p>
           <div className="cs-actions">
-            <a
-              href="https://www.youtube.com/@ConfessedFaith"
-              target="_blank"
-              rel="noopener"
-              className="cs-btn-gold"
-            >
-              Watch on YouTube for now
-            </a>
+            <Link href="/#newsletter" className="cs-btn-gold">Subscribe for updates</Link>
             <Link href="/articles" className="cs-btn-ghost">Read the articles</Link>
           </div>
         </div>
