@@ -42,17 +42,16 @@ export default function Navbar() {
           display: flex; align-items: center; gap: 10px;
         }
 
-        /* Shop button — always visible */
+        /* Shop icon button — always visible */
         .nb-btn-shop {
-          display: flex; align-items: center; gap: 7px;
-          background: #C9A94A; border: none; color: #080f1a;
-          padding: 8px 16px; border-radius: 6px;
-          font-size: 13px; font-weight: 700; letter-spacing: .04em;
-          cursor: pointer; text-decoration: none;
-          font-family: var(--font-barlow), sans-serif;
-          transition: background .2s; white-space: nowrap; flex-shrink: 0;
+          display: flex; align-items: center; justify-content: center;
+          width: 38px; height: 38px; border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.1);
+          color: rgba(240,236,224,0.7);
+          text-decoration: none; flex-shrink: 0;
+          transition: border-color .2s, color .2s;
         }
-        .nb-btn-shop:hover { background: #b89840; }
+        .nb-btn-shop:hover { border-color: rgba(201,169,74,0.4); color: #C9A94A; }
 
         /* Desktop auth */
         .navbar-auth, .navbar-user {
@@ -105,9 +104,6 @@ export default function Navbar() {
           .navbar-auth  { display: none; }
           .navbar-user  { display: none; }
           .navbar-user-name { display: none; }
-          /* Shop label hides on mobile — icon only */
-          .nb-btn-shop-label { display: none; }
-          .nb-btn-shop { padding: 8px 10px; }
         }
       `}</style>
 
@@ -119,9 +115,8 @@ export default function Navbar() {
 
         <div className="navbar-right">
           {/* Shop — always visible */}
-          <Link href="/shop" className="nb-btn-shop">
-            <ShoppingBag size={15} strokeWidth={2.5} />
-            <span className="nb-btn-shop-label">Shop</span>
+          <Link href="/shop" className="nb-btn-shop" aria-label="Shop">
+            <ShoppingBag size={16} strokeWidth={2} />
           </Link>
 
           {/* Desktop auth */}
