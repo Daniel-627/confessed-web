@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useUser, SignOutButton } from '@clerk/nextjs'
 import Link from 'next/link'
+import { ShoppingBag } from 'lucide-react'
 import Menu from './Menu'
 
 export default function Navbar() {
@@ -13,13 +14,9 @@ export default function Navbar() {
     <>
       <style>{`
         .navbar {
-          position: relative;
-          z-index: 50;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 48px;
-          height: 64px;
+          position: relative; z-index: 50;
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 0 48px; height: 64px;
           border-bottom: 1px solid rgba(255,255,255,0.05);
           background: rgba(8,15,26,0.95);
           backdrop-filter: blur(12px);
@@ -27,18 +24,13 @@ export default function Navbar() {
         }
         .navbar::before {
           content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 2px;
+          position: absolute; top: 0; left: 0; right: 0; height: 2px;
           background: linear-gradient(90deg, transparent, #C9A94A, transparent);
           pointer-events: none;
         }
         .navbar-logo {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          text-decoration: none;
-          flex-shrink: 0;
+          display: flex; align-items: center; gap: 10px;
+          text-decoration: none; flex-shrink: 0;
         }
         .navbar-cross { color: #C9A94A; font-size: 20px; line-height: 1; }
         .navbar-wordmark {
@@ -46,22 +38,28 @@ export default function Navbar() {
           letter-spacing: .22em; color: #f0ece0;
         }
 
-        /* Desktop right side */
         .navbar-right {
-          display: flex;
-          align-items: center;
-          gap: 10px;
+          display: flex; align-items: center; gap: 10px;
         }
 
-        /* Auth buttons — desktop only */
+        /* Shop button — always visible */
+        .nb-btn-shop {
+          display: flex; align-items: center; gap: 7px;
+          background: #C9A94A; border: none; color: #080f1a;
+          padding: 8px 16px; border-radius: 6px;
+          font-size: 13px; font-weight: 700; letter-spacing: .04em;
+          cursor: pointer; text-decoration: none;
+          font-family: var(--font-barlow), sans-serif;
+          transition: background .2s; white-space: nowrap; flex-shrink: 0;
+        }
+        .nb-btn-shop:hover { background: #b89840; }
+
+        /* Desktop auth */
         .navbar-auth, .navbar-user {
-          display: flex;
-          align-items: center;
-          gap: 10px;
+          display: flex; align-items: center; gap: 10px;
         }
         .navbar-user-name {
-          font-size: 13px;
-          color: rgba(240,236,224,0.55);
+          font-size: 13px; color: rgba(240,236,224,0.55);
         }
         .nb-btn-ghost {
           background: transparent;
@@ -101,12 +99,15 @@ export default function Navbar() {
           background: currentColor; border-radius: 2px;
         }
 
-        /* Mobile — hide everything except logo + hamburger */
+        /* Mobile */
         @media (max-width: 768px) {
           .navbar { padding: 0 20px; }
-          .navbar-auth { display: none; }
-          .navbar-user { display: none; }
+          .navbar-auth  { display: none; }
+          .navbar-user  { display: none; }
           .navbar-user-name { display: none; }
+          /* Shop label hides on mobile — icon only */
+          .nb-btn-shop-label { display: none; }
+          .nb-btn-shop { padding: 8px 10px; }
         }
       `}</style>
 
@@ -117,12 +118,23 @@ export default function Navbar() {
         </Link>
 
         <div className="navbar-right">
+          {/* Shop — always visible */}
+          <Link href="/shop" className="nb-btn-shop">
+            <ShoppingBag size={15} strokeWidth={2.5} />
+            <span className="nb-btn-shop-label">Shop</span>
+          </Link>
+
+          {/* Desktop auth */}
           {isLoaded && (
             user ? (
               <div className="navbar-user">
-                <span className="navbar-user-name">{user.firstName ?? user.primaryEmailAddress?.emailAddress}</span>
+                <span className="navbar-user-name">
+                  {user.firstName ?? user.primaryEmailAddress?.emailAddress}
+                </span>
                 <Link href="/dashboard" className="nb-btn-ghost">Dashboard</Link>
-                <SignOutButton redirectUrl="/"><button className="nb-btn-ghost">Sign out</button></SignOutButton>
+                <SignOutButton redirectUrl="/">
+                  <button className="nb-btn-ghost">Sign out</button>
+                </SignOutButton>
               </div>
             ) : (
               <div className="navbar-auth">
@@ -131,7 +143,13 @@ export default function Navbar() {
               </div>
             )
           )}
-          <button className="navbar-menu-btn" onClick={() => setMenuOpen(true)} aria-label="Open menu">
+
+          {/* Hamburger */}
+          <button
+            className="navbar-menu-btn"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open menu"
+          >
             <span className="hamburger-line" />
             <span className="hamburger-line" />
             <span className="hamburger-line" />
