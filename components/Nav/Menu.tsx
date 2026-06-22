@@ -3,6 +3,10 @@
 import { usePathname } from 'next/navigation'
 import { SignOutButton } from '@clerk/nextjs'
 import Link from 'next/link'
+import { FaYoutube } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6'
+import { ShoppingBag } from 'lucide-react'
+
 const mainLinks = [
   { label: 'Home',         href: '/' },
   { label: 'Articles',     href: '/articles' },
@@ -14,6 +18,27 @@ const mainLinks = [
   { label: 'Contact',      href: '/contact' },
 ]
 
+const socials = [
+  {
+    href:     'https://www.youtube.com/@ConfessedFaith',
+    label:    'YouTube',
+    icon:     <FaYoutube size={20} />,
+    external: true,
+  },
+  {
+    href:     'https://x.com/ConfessedFaith',
+    label:    'X / Twitter',
+    icon:     <FaXTwitter size={19} />,
+    external: true,
+  },
+  {
+    href:     '/shop',
+    label:    'Shop',
+    icon:     <ShoppingBag size={19} strokeWidth={2} />,
+    external: false,
+  },
+]
+
 type Props = {
   open: boolean
   onClose: () => void
@@ -22,8 +47,8 @@ type Props = {
 }
 
 export default function Menu({ open, onClose, user, isLoaded }: Props) {
-  const pathname  = usePathname()
-  const role      = (user as any)?.publicMetadata?.role
+  const pathname = usePathname()
+  const role     = (user as any)?.publicMetadata?.role
 
   return (
     <>
@@ -39,8 +64,7 @@ export default function Menu({ open, onClose, user, isLoaded }: Props) {
         .menu-overlay.open { transform: translateX(0); }
         .menu-overlay::before {
           content: '';
-          position: fixed; top: 0; left: 0; right: 0;
-          height: 2px;
+          position: fixed; top: 0; left: 0; right: 0; height: 2px;
           background: linear-gradient(90deg, transparent, #C9A94A, transparent);
           z-index: 101; pointer-events: none;
         }
@@ -52,9 +76,7 @@ export default function Menu({ open, onClose, user, isLoaded }: Props) {
           border-bottom: 1px solid rgba(255,255,255,0.05);
           flex-shrink: 0;
         }
-        .menu-logo {
-          display: flex; align-items: center; gap: 10px; text-decoration: none;
-        }
+        .menu-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
         .menu-cross { color: #C9A94A; font-size: 20px; }
         .menu-wordmark {
           font-size: 13px; font-weight: 700; letter-spacing: .2em;
@@ -69,7 +91,7 @@ export default function Menu({ open, onClose, user, isLoaded }: Props) {
         }
         .menu-close:hover { border-color: rgba(201,169,74,0.4); color: #f0ece0; }
 
-        /* Mobile auth strip — only shows on mobile when signed in */
+        /* Mobile auth strip */
         .menu-user-strip {
           display: none;
           align-items: center; justify-content: space-between;
@@ -91,10 +113,7 @@ export default function Menu({ open, onClose, user, isLoaded }: Props) {
           transition: all .2s; white-space: nowrap;
         }
         .menu-user-btn:hover { border-color: rgba(201,169,74,0.3); color: #f0ece0; }
-
-        @media (max-width: 768px) {
-          .menu-user-strip { display: flex; }
-        }
+        @media (max-width: 768px) { .menu-user-strip { display: flex; } }
 
         /* Nav links */
         .menu-body {
@@ -108,7 +127,6 @@ export default function Menu({ open, onClose, user, isLoaded }: Props) {
           font-family: var(--font-barlow), sans-serif;
         }
         .menu-section-label:first-child { margin-top: 0; }
-
         .menu-link {
           display: flex; align-items: center; gap: 14px;
           padding: 13px 0;
@@ -123,22 +141,39 @@ export default function Menu({ open, onClose, user, isLoaded }: Props) {
         .menu-link.active { color: #f0ece0; }
         .menu-link.active::before {
           content: '✝'; color: #C9A94A; font-size: 13px;
-          font-family: var(--font-barlow), sans-serif;
-          flex-shrink: 0;
+          font-family: var(--font-barlow), sans-serif; flex-shrink: 0;
         }
         .menu-link-badge {
           font-size: 9px; font-weight: 700; letter-spacing: .1em;
           padding: 2px 8px; border-radius: 100px; border: 1px solid;
-          font-family: var(--font-barlow), sans-serif; margin-left: auto;
-          flex-shrink: 0;
+          font-family: var(--font-barlow), sans-serif; margin-left: auto; flex-shrink: 0;
         }
         .badge-contributor { color: #C9A94A; border-color: rgba(201,169,74,0.3); }
-        .badge-admin { color: #81c784; border-color: rgba(129,199,132,0.3); }
+        .badge-admin       { color: #81c784; border-color: rgba(129,199,132,0.3); }
 
-        /* Footer — sign in/up for guests */
-        .menu-footer {
+        /* Social icons row */
+        .menu-socials {
+          display: flex; align-items: center; gap: 8px;
           padding: 24px 32px;
           border-top: 1px solid rgba(255,255,255,0.05);
+          flex-shrink: 0;
+        }
+        .menu-social-icon {
+          display: flex; align-items: center; justify-content: center;
+          width: 40px; height: 40px; border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.08);
+          color: rgba(240,236,224,0.3); text-decoration: none;
+          transition: border-color .2s, color .2s, background .2s;
+        }
+        .menu-social-icon:hover {
+          border-color: rgba(201,169,74,0.4);
+          color: #C9A94A;
+          background: rgba(201,169,74,0.06);
+        }
+
+        /* Guest footer */
+        .menu-footer {
+          padding: 16px 32px 28px;
           display: flex; flex-direction: column; gap: 10px; flex-shrink: 0;
         }
         .menu-auth-btn {
@@ -168,7 +203,7 @@ export default function Menu({ open, onClose, user, isLoaded }: Props) {
           <button className="menu-close" onClick={onClose} aria-label="Close menu">✕</button>
         </div>
 
-        {/* Mobile-only signed-in strip */}
+        {/* Mobile signed-in strip */}
         {isLoaded && user && (
           <div className="menu-user-strip">
             <span className="menu-user-name">
@@ -200,11 +235,7 @@ export default function Menu({ open, onClose, user, isLoaded }: Props) {
           {(role === 'contributor' || role === 'admin') && (
             <>
               <p className="menu-section-label">Your Access</p>
-              <Link
-                href="https://contribute.confessed.faith"
-                className="menu-link"
-                onClick={onClose}
-              >
+              <Link href="https://contribute.confessed.faith" className="menu-link" onClick={onClose}>
                 Contribute
                 <span className="menu-link-badge badge-contributor">Contributor</span>
               </Link>
@@ -212,15 +243,27 @@ export default function Menu({ open, onClose, user, isLoaded }: Props) {
           )}
 
           {role === 'admin' && (
-            <Link
-              href="https://contribute.confessed.faith/admin"
-              className="menu-link"
-              onClick={onClose}
-            >
+            <Link href="https://contribute.confessed.faith/admin" className="menu-link" onClick={onClose}>
               Admin Panel
               <span className="menu-link-badge badge-admin">Admin</span>
             </Link>
           )}
+        </div>
+
+        {/* Social icons — always visible */}
+        <div className="menu-socials">
+          {socials.map(s => (
+            <Link
+              key={s.label}
+              href={s.href}
+              className="menu-social-icon"
+              aria-label={s.label}
+              onClick={onClose}
+              {...(s.external ? { target: '_blank', rel: 'noopener' } : {})}
+            >
+              {s.icon}
+            </Link>
+          ))}
         </div>
 
         {/* Guest footer */}

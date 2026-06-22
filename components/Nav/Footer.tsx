@@ -1,18 +1,21 @@
 // components/Nav/Footer.tsx
 import Link from 'next/link'
+import { FaYoutube } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6'
+import { ShoppingBag } from 'lucide-react'
 
 const footerLinks = {
   Explore: [
-    { label: 'Articles',      href: '/articles' },
-    { label: 'Videos',        href: '/videos' },
-    { label: 'Podcasts',      href: '/podcasts' },
-    { label: 'Daily Office',  href: '/daily-office' },
+    { label: 'Articles',     href: '/articles' },
+    { label: 'Videos',       href: '/videos' },
+    { label: 'Podcasts',     href: '/podcasts' },
+    { label: 'Daily Office', href: '/daily-office' },
   ],
   Community: [
-    { label: 'About',         href: '/about' },
-    { label: 'Contact',       href: '/contact' },
-    { label: 'Contribute',    href: 'https://contribute.confessed.faith' },
-    { label: 'Newsletter',    href: '#newsletter' },
+    { label: 'About',      href: '/about' },
+    { label: 'Contact',    href: '/contact' },
+    { label: 'Contribute', href: 'https://contribute.confessed.faith' },
+    { label: 'Newsletter', href: '#newsletter' },
   ],
   Legal: [
     { label: 'Privacy Policy',     href: '/privacy' },
@@ -20,6 +23,24 @@ const footerLinks = {
     { label: 'Statement of Faith', href: '/statement-of-faith' },
   ],
 }
+
+const socials = [
+  {
+    href:  'https://www.youtube.com/@ConfessedFaith',
+    label: 'YouTube',
+    icon:  <FaYoutube size={18} />,
+  },
+  {
+    href:  'https://x.com/ConfessedFaith',
+    label: 'X / Twitter',
+    icon:  <FaXTwitter size={17} />,
+  },
+  {
+    href:  '/shop',
+    label: 'Shop',
+    icon:  <ShoppingBag size={17} strokeWidth={2} />,
+  },
+]
 
 export default function Footer() {
   return (
@@ -38,8 +59,7 @@ export default function Footer() {
         .footer-main {
           display: grid;
           grid-template-columns: 1.8fr repeat(3, 1fr);
-          gap: 48px;
-          padding: 64px 64px 48px;
+          gap: 48px; padding: 64px 64px 48px;
           border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .footer-brand {}
@@ -114,13 +134,23 @@ export default function Footer() {
         .footer-copy { font-size: 11px; color: rgba(240,236,224,0.2); }
         .footer-copy a { color: rgba(201,169,74,0.4); text-decoration: none; }
         .footer-copy a:hover { color: #C9A94A; }
-        .footer-socials { display: flex; gap: 16px; }
-        .footer-social-link {
-          font-size: 11px; font-weight: 600; letter-spacing: .1em;
-          color: rgba(240,236,224,0.25); text-decoration: none;
-          text-transform: uppercase; transition: color .2s;
+
+        /* Social icon row */
+        .footer-socials { display: flex; align-items: center; gap: 6px; }
+        .footer-social-icon {
+          display: flex; align-items: center; justify-content: center;
+          width: 36px; height: 36px; border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.08);
+          color: rgba(240,236,224,0.3);
+          text-decoration: none;
+          transition: border-color .2s, color .2s, background .2s;
         }
-        .footer-social-link:hover { color: #C9A94A; }
+        .footer-social-icon:hover {
+          border-color: rgba(201,169,74,0.35);
+          color: #C9A94A;
+          background: rgba(201,169,74,0.06);
+        }
+
         .footer-verse {
           width: 100%; text-align: center; padding: 0 64px 24px;
         }
@@ -128,11 +158,9 @@ export default function Footer() {
           font-family: var(--font-garamond), serif;
           font-size: 13px; font-style: italic; color: rgba(240,236,224,0.15);
         }
+
         @media (max-width: 900px) {
-          .footer-main {
-            grid-template-columns: 1fr 1fr;
-            padding: 48px 32px 40px; gap: 40px;
-          }
+          .footer-main { grid-template-columns: 1fr 1fr; padding: 48px 32px 40px; gap: 40px; }
           .footer-brand { grid-column: 1 / -1; }
           .footer-bottom { padding: 20px 32px; }
           .footer-verse { padding: 0 32px 20px; }
@@ -194,9 +222,17 @@ export default function Footer() {
             © {new Date().getFullYear()} <a href="https://confessed.faith">Confessed</a>. All rights reserved.
           </p>
           <div className="footer-socials">
-            <a href="https://www.youtube.com/@ConfessedFaith" className="footer-social-link" target="_blank" rel="noopener">YouTube</a>
-            <a href="https://x.com/ConfessedFaith" className="footer-social-link" target="_blank" rel="noopener">X / Twitter</a>
-            <a href="https://confessed.faith" className="footer-social-link">confessed.faith</a>
+            {socials.map(s => (
+              <Link
+                key={s.label}
+                href={s.href}
+                className="footer-social-icon"
+                aria-label={s.label}
+                {...(s.href.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}
+              >
+                {s.icon}
+              </Link>
+            ))}
           </div>
         </div>
       </footer>
