@@ -1,8 +1,13 @@
 // components/Nav/Footer.tsx
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 import { FaYoutube } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import { ShoppingBag } from 'lucide-react'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL!
 
 const footerLinks = {
   Explore: [
@@ -15,7 +20,7 @@ const footerLinks = {
     { label: 'About',      href: '/about' },
     { label: 'Contact',    href: '/contact' },
     { label: 'Contribute', href: 'https://contribute.confessed.faith' },
-    { label: 'Newsletter', href: '#newsletter' },
+    { label: 'Resources',  href: '/resources' },
   ],
   Legal: [
     { label: 'Privacy Policy',     href: '/privacy' },
@@ -42,7 +47,40 @@ const socials = [
   },
 ]
 
+type NewsletterState = 'idle' | 'loading' | 'success' | 'error'
+
 export default function Footer() {
+  const [email,  setEmail]  = useState('')
+  const [state,  setState]  = useState<NewsletterState>('idle')
+  const [errMsg, setErrMsg] = useState('')
+
+  async function handleSubscribe() {
+    const trimmed = email.trim().toLowerCase()
+    if (!trimmed) return
+    setState('loading')
+    setErrMsg('')
+    try {
+      const res = await fetch(`${API_URL}/newsletter`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email: trimmed, source: 'footer' }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error ?? 'Something went wrong')
+      }
+      setState('success')
+      setEmail('')
+    } catch (e: any) {
+      setErrMsg(e.message ?? 'Something went wrong')
+      setState('error')
+    }
+  }
+
+  function handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') handleSubscribe()
+  }
+
   return (
     <>
       <style>{`
@@ -105,6 +143,7 @@ export default function Footer() {
         }
         .newsletter-input::placeholder { color: rgba(240,236,224,0.2); }
         .newsletter-input:focus { border-color: rgba(201,169,74,0.4); }
+        .newsletter-input:disabled { opacity: .5; cursor: not-allowed; }
         .newsletter-btn {
           background: #C9A94A; border: none; color: #080f1a;
           padding: 9px 18px; border-radius: 6px; font-size: 12px;
@@ -112,7 +151,13 @@ export default function Footer() {
           font-family: var(--font-barlow), sans-serif; white-space: nowrap;
           transition: background .2s; flex-shrink: 0;
         }
-        .newsletter-btn:hover { background: #b89840; }
+        .newsletter-btn:hover:not(:disabled) { background: #b89840; }
+        .newsletter-btn:disabled { opacity: .5; cursor: not-allowed; }
+        .newsletter-feedback {
+          margin-top: 8px; font-size: 12px; line-height: 1.5;
+        }
+        .newsletter-feedback.success { color: #81c784; }
+        .newsletter-feedback.error   { color: #e57373; }
         .footer-col {}
         .footer-col-title {
           font-size: 10px; font-weight: 700; letter-spacing: .16em;
@@ -134,8 +179,6 @@ export default function Footer() {
         .footer-copy { font-size: 11px; color: rgba(240,236,224,0.2); }
         .footer-copy a { color: rgba(201,169,74,0.4); text-decoration: none; }
         .footer-copy a:hover { color: #C9A94A; }
-
-        /* Social icon row */
         .footer-socials { display: flex; align-items: center; gap: 6px; }
         .footer-social-icon {
           display: flex; align-items: center; justify-content: center;
@@ -150,7 +193,6 @@ export default function Footer() {
           color: #C9A94A;
           background: rgba(201,169,74,0.06);
         }
-
         .footer-verse {
           width: 100%; text-align: center; padding: 0 64px 24px;
         }
@@ -158,7 +200,6 @@ export default function Footer() {
           font-family: var(--font-garamond), serif;
           font-size: 13px; font-style: italic; color: rgba(240,236,224,0.15);
         }
-
         @media (max-width: 900px) {
           .footer-main { grid-template-columns: 1fr 1fr; padding: 48px 32px 40px; gap: 40px; }
           .footer-brand { grid-column: 1 / -1; }
@@ -189,13 +230,40 @@ export default function Footer() {
                 <span key={t} className="footer-tag">{t}</span>
               ))}
             </div>
+
             <div className="footer-newsletter" id="newsletter">
               <p className="newsletter-label">Newsletter</p>
               <p className="newsletter-desc">Gospel-centred articles and resources, straight to your inbox.</p>
-              <div className="newsletter-form">
-                <input type="email" className="newsletter-input" placeholder="your@email.com" />
-                <button className="newsletter-btn">Subscribe</button>
-              </div>
+
+              {state === 'success' ? (
+                <p className="newsletter-feedback success">
+                  You're subscribed. Check your inbox for a welcome email.
+                </p>
+              ) : (
+                <>
+                  <div className="newsletter-form">
+                    <input
+                      type="email"
+                      className="newsletter-input"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={e => { setEmail(e.target.value); if (state === 'error') setState('idle') }}
+                      onKeyDown={handleKey}
+                      disabled={state === 'loading'}
+                    />
+                    <button
+                      className="newsletter-btn"
+                      onClick={handleSubscribe}
+                      disabled={state === 'loading' || !email.trim()}
+                    >
+                      {state === 'loading' ? 'Subscribing…' : 'Subscribe'}
+                    </button>
+                  </div>
+                  {state === 'error' && (
+                    <p className="newsletter-feedback error">{errMsg}</p>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
