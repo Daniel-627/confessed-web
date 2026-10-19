@@ -14,6 +14,7 @@ const mainLinks = [
   { label: 'Podcasts',     href: '/podcasts' },
   { label: 'Daily Office', href: '/daily-office' },
   { label: 'Shop',         href: '/shop' },
+  { label: 'Give',         href: '/give' },
   { label: 'About',        href: '/about' },
   { label: 'Contact',      href: '/contact' },
 ]

@@ -21,6 +21,7 @@ const footerLinks = {
     { label: 'Contact',    href: '/contact' },
     { label: 'Contribute', href: 'https://contribute.confessed.faith' },
     { label: 'Resources',  href: '/resources' },
+    { label: 'Give',       href: '/give' },
   ],
   Legal: [
     { label: 'Privacy Policy',     href: '/privacy' },
