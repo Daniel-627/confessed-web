@@ -1,7 +1,7 @@
 // app/give/thank-you/page.tsx
 //
-// Flutterwave redirects here with ?status=...&tx_ref=...&transaction_id=...
-// The query string is NOT trusted: we ask our API, which re-verifies with Flutterwave.
+// Paystack redirects here with ?trxref=...&reference=...
+// The query string is NOT trusted: we ask our API, which re-verifies with Paystack.
 'use client'
 import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -18,7 +18,7 @@ type Result =
 
 function ThankYou() {
   const params = useSearchParams()
-  const txRef = params.get('tx_ref')
+  const txRef = params.get('reference') ?? params.get('trxref')
   const [result, setResult] = useState<Result>({ state: txRef ? 'checking' : 'missing' })
 
   useEffect(() => {

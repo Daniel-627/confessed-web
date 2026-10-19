@@ -66,7 +66,7 @@ export default function GivePage() {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data.link) throw new Error(data.error ?? 'Something went wrong')
-      window.location.href = data.link // Flutterwave hosted checkout (M-Pesa, card)
+      window.location.href = data.link // Paystack hosted checkout (M-Pesa, card)
     } catch (e: any) {
       setError(e.message ?? 'Something went wrong')
       setLoading(false)
@@ -188,7 +188,7 @@ export default function GivePage() {
               {loading ? 'Opening secure checkout…' : 'Continue to payment'}
             </button>
             <p className="gv-note">
-              You&rsquo;ll pay on Flutterwave&rsquo;s secure checkout with M-Pesa or card. We never see or store your card or M-Pesa details.
+              You&rsquo;ll pay on Paystack&rsquo;s secure checkout with M-Pesa or card. We never see or store your card or M-Pesa details.
             </p>
           </div>
         </div>
