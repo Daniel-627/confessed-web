@@ -10,6 +10,7 @@ const CURRENCIES = {
   USD: { symbol: '$',   presets: [5, 10, 25, 50],         min: 1 },
 } as const
 type Currency = keyof typeof CURRENCIES
+type Method = 'paystack' | 'paypal'
 
 export default function GivePage() {
   const { getToken } = useAuth()
@@ -17,6 +18,7 @@ export default function GivePage() {
 
   const [currency, setCurrency] = useState<Currency>('KES')
   const [amount,   setAmount]   = useState<string>('1000')
+  const [method,   setMethod]   = useState<Method>('paystack')
   const [name,     setName]     = useState('')
   const [email,    setEmail]    = useState('')
   const [message,  setMessage]  = useState('')
@@ -35,6 +37,7 @@ export default function GivePage() {
 
   function pickCurrency(c: Currency) {
     setCurrency(c)
+    if (c === 'KES') setMethod('paystack') // PayPal is USD-only
     setAmount(String(CURRENCIES[c].presets[1]))
   }
 
@@ -59,14 +62,14 @@ export default function GivePage() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          amount: value, currency,
+          amount: value, currency, provider: method,
           name: name.trim(), email: email.trim(),
           message: message.trim(), anonymous: anon,
         }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data.link) throw new Error(data.error ?? 'Something went wrong')
-      window.location.href = data.link // Paystack hosted checkout (M-Pesa, card)
+      window.location.href = data.link // Paystack (M-Pesa, card) or PayPal hosted checkout
     } catch (e: any) {
       setError(e.message ?? 'Something went wrong')
       setLoading(false)
@@ -150,6 +153,16 @@ export default function GivePage() {
               </div>
             </div>
 
+            {currency === 'USD' && (
+              <div>
+                <label className="gv-label">Pay with</label>
+                <div className="gv-cur">
+                  <button type="button" className={method === 'paystack' ? 'on' : ''} onClick={() => setMethod('paystack')}>CARD</button>
+                  <button type="button" className={method === 'paypal' ? 'on' : ''} onClick={() => setMethod('paypal')}>PAYPAL</button>
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="gv-label">Amount</label>
               <div className="gv-presets">
@@ -185,10 +198,12 @@ export default function GivePage() {
             {error && <div className="gv-error">{error}</div>}
 
             <button className="gv-submit" onClick={handleGive} disabled={loading}>
-              {loading ? 'Opening secure checkout…' : 'Continue to payment'}
+              {loading ? 'Opening secure checkout…' : method === 'paypal' ? 'Continue to PayPal' : 'Continue to payment'}
             </button>
             <p className="gv-note">
-              You&rsquo;ll pay on Paystack&rsquo;s secure checkout with M-Pesa or card. We never see or store your card or M-Pesa details.
+              {method === 'paypal'
+                ? 'You\u2019ll approve the gift on PayPal. We never see your PayPal login or card details.'
+                : 'You\u2019ll pay on Paystack\u2019s secure checkout with M-Pesa or card. We never see or store your card or M-Pesa details.'}
             </p>
           </div>
         </div>
